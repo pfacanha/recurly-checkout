@@ -2,7 +2,7 @@
 recurly.configure('ewr1-7CmUOdfgabkiYdgBEvWjUj');
 
 // Subscription's name
-const planCode = 'mongoosevipclub-individuals';
+const planCode = 'mongoosekclub-individuals';
 
 // Recurly's element instance
 const elements = recurly.Elements();
