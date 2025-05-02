@@ -1,0 +1,25 @@
+{
+  "name": "recurly-checkout",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.ts",
+  "scripts": {
+    "start": "tsx watch server.ts"
+  },
+  "keywords": [],
+  "author": "Mongoose Club",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "recurly": "^4.62.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.3"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.14.1",
+    "typescript": "^5.8.3"
+  }
+}

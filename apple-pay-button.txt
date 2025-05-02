@@ -1,0 +1,34 @@
+// Handle when the token has been generated to keep the payment sheet in the "Processing"
+// state until the onPaymentAuthorized callback has completed
+function onPaymentAuthorized({ payment }) {
+    const { recurlyToken: token, billingContact, shippingContact } = payment;
+    // Submit the token to your server
+    console.log('Apple Pay succeeded.',
+                'Token:', token.id,
+                'billingContact:', billingContact,
+                'shippingContact', shippingContact);
+  }
+  
+  const applePay = recurly.ApplePay({
+    country: 'CA',
+    currency: 'CAD',
+    label: 'My Subscription', // This text will be displayed on the Apple Pay payment sheet as "My Subscription"
+    total: '3.50',
+    callbacks: {
+      onPaymentAuthorized,
+    }
+  });
+  
+  // When the ApplePay instance is ready, bind the Apple Pay button click
+  // to applePay.begin
+  applePay.ready(function () {
+    $('#my-apple-pay-button').on('click', function () {
+      applePay.begin();
+    });
+  });
+  
+  // Handle errors. These may occur at any point in the Apple Pay flow
+  applePay.on('error', function (err) {
+    // err.code, err.message
+    console.error('Apple Pay error', err);
+  });

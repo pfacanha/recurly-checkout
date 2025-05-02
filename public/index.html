@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://js.recurly.com/v4/recurly.js" defer></script>
+    <script src="./main.js" defer></script>
+    <link href="https://js.recurly.com/v4/recurly.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="./styles.css">
+    <title>Document</title>
+</head>
+<body>
+
+    <div id="wrapper">
+        <form id="my-form">
+          <img src="./images/logo-new.png" alt="logo">
+          
+            <h2>Contact Info</h2>
+          
+            <div id="name-box" class="grid-box">
+
+              <div>
+                <label>First Name *</label>
+                <input type="text" name="first_name" data-recurly="first_name" class="recurly-element">
+              </div>
+            
+              <div>
+                <label>Last Name *</label>
+                <input type="text" name="last_name" data-recurly="last_name" class="recurly-element">
+              </div>
+
+            </div>
+          
+            <label>Email *</label>
+            <input type="text" name="email" class="recurly-element"> <!-- No data-recurly needed -->
+            
+            <h2>Card Details</h2>
+            <div id="recurly-elements"></div>
+
+            <h2>Billing Info</h2>
+          
+            <label>Address *</label>
+            <input type="text" name="address1" data-recurly="address1" class="recurly-element">
+          
+            <label>City *</label>
+            <input type="text" name="city" data-recurly="city" class="recurly-element">
+            
+            <label>Country *</label>
+            <select name="country" data-recurly="country" title="Select your country" class="recurly-element">
+              <option value="US" selected>United States</option>
+              <option value="CA">Canada</option>
+              <option value="BR">Brazil</option>
+            </select>
+            
+            <div id="zip-box" class="grid-box">
+
+              <div>
+                <label>Province *</label>
+                <input type="text" name="state" data-recurly="state" class="recurly-element">
+              </div>
+            
+              <div>
+                <label>Postal Code *</label>
+                <input type="text" name="postal_code" data-recurly="postal_code" class="recurly-element">
+              </div>
+
+            </div>
+            
+            <!-- Recurly.js will update this field automatically -->
+            <input type="hidden" name="recurly-token" data-recurly="token">
+          
+            <button type="submit">Submit</button>
+          </form>
+    </div>
+      
+</body>
+</html>
