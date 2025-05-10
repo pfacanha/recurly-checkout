@@ -25,7 +25,7 @@ h2 {
 }
 
 button {
-    background-color: #3b82f6 !important;
+    background: linear-gradient(135deg, #fbbf24, #ee873e) !important;
     color: white;
     border-radius: 5px;
     padding: 5px;
@@ -35,14 +35,15 @@ button {
 }
 
 img {
-    max-width: 30%;
+    max-width: 35%;
     height: auto;
     display: block;
     margin: 0 auto;
+    border-radius: 50%;
 }
 
 label {
-    color: gray;
+    color: black;
 }
 
 .grid-box {
@@ -55,19 +56,99 @@ label {
     width: 100%;
 }
 
+.input-error {
+  border: 2px solid red !important;
+  background-color: #fff0f0;
+}
+
+.input-error::placeholder {
+  color: red;
+  font-weight: bold;
+}
+
+#plans-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    border: 2px solid black; /* nice blue border */
+    background: linear-gradient(135deg, #fbbf24, #f09553);
+    border-radius: 16px;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 600px;
+    margin: 1rem auto;
+
+    font-weight: 600;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+#plans-options label {
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: black;
+}
+
+#plans-options input[type="radio"] {
+    margin-right: 8px;
+    transform: scale(1.1);
+    accent-color: #2563eb; /* gives it a clean blue accent in modern browsers */
+}
+
+#plans-options:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+#onetime-amount input {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #94a3b8;
+    border-radius: 8px;
+    margin-top: 0.25rem;
+}
+  
+#onetime-amount label,
+#individuals-only label,
+#businesses-only label {
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: rgb(65, 54, 54);
+}
+
 #my-form {
     display: flex;
     flex-direction: column;
-    height: auto;
+    justify-content: center;
     max-width: 500px;
-    width: 100%;
+    gap: 5px;
 }
 
 #wrapper {
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
+    min-height: 100vh;      
+    max-width: 1200px;   /* optional: prevent it from getting too wide */
     padding: 2rem;
+    margin: 0 auto;
 }
+
+@media (max-width: 450px){
+    #wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+    }
+    #plans-options {
+        margin-top: 5px;
+    }
+  }
+  

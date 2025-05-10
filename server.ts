@@ -28,9 +28,14 @@ app.get("/subscriptions", async (req, res) => {
   
       const results = [];
       for await (const subs of subscriptions.each()) {
-        results.push(subs);
+        results.push(subs.account);
       }
-      console.log(results[0]);
+      
+      results.forEach(acc => {
+        //@ts-ignore
+        console.log(acc.firstName);
+      });
+      
       res.status(200).json({ count, subscriptions : results });
     } catch (error: any) {
       console.error("Error fetching subscriptions:", error);
@@ -40,50 +45,90 @@ app.get("/subscriptions", async (req, res) => {
   
 // Create a new subscription
 app.post("/purchases", async (req, res) => {
-  console.log('req.body:', req.body);
+  const {
+    firstName,
+    lastName,
+    email,
+    customAmount,
+    rjsTokenId,
+    planCode,
+    address,
+  } = req.body;
 
-  const { firstName, lastName, email, rjsTokenId, planCode } = req.body;
-  
+  console.log("Incoming request:", req.body);
+
   const accountCode = email;
 
-  // Create purchaseReq object
-  try {
-    let purchaseReq = {
-      currency: 'CAD',
-      account: {
-        code: accountCode,
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        billingInfo: {
-          tokenId: rjsTokenId
-        }
-      },
-      subscriptions: [
-        { planCode: planCode },
-      ]
+  const accountInfo = {
+    code: accountCode,
+    firstName,
+    lastName,
+    preferredTimeZone: 'America/Chicago',
+    address: {
+      street1: address.street,
+      city: address.city,
+      region: address.state,
+      postalCode: address.postalCode,
+      country: address.country,
+    },
+    billingInfo: {
+      tokenId: rjsTokenId
     }
+  };
 
-    let invoiceCollection = await client.createPurchase(purchaseReq);
+  try {
+    if (planCode === 'mongoosevipclub-onetime') {
+      // 1. Create account
+      const account = await client.createAccount(accountInfo);
+      console.log('Created Account:', account.id);
 
-    console.log('Created Charge Invoice: ', invoiceCollection.chargeInvoice);
-    console.log('Created Credit Invoices: ', invoiceCollection.creditInvoices);
+      // 1.1 Check if account.code exists
+      if(!account.id){
+        throw new Error("Account code is missing after account creation");
+      }
 
-    res.status(201).json({ message : "Purchase completed!"});
-  } catch (err) {
-    if (err instanceof recurly.errors.ValidationError) {
-      // If the request was not valid, you may want to tell your user
-      // why. You can find the invalid params and reasons in err.params
-      console.log('Failed validation', err.message);
-      res.status(400).json({ message : "Purchase not completed!"});
+      // 2. Charge one-time line item
+      const lineItem = await client.createLineItem(account.id, {
+        currency: 'CAD',
+        unitAmount: parseFloat(customAmount),
+        type: 'charge'
+      });
+
+      console.log('Created one-time charge:', lineItem.uuid);
+
+      // 3. Create an invoice for line item so user can be notified and charged
+      let invoiceCreate = {
+        currency: 'CAD',
+        collectionMethod: 'automatic'
+      }
+      let invoiceCollection = await client.createInvoice(account.id, invoiceCreate);
+      console.log('Created Invoice');
+      console.log('Charge Invoice: ', invoiceCollection.chargeInvoice);
+      console.log('Credit Invoices: ', invoiceCollection.creditInvoices);
+
+      res.status(200).json({ success: true, message: 'One-time purchase completed.' });
+
     } else {
-      // If we don't know what to do with the err, we should
-      // probably re-raise and let our web framework and logger handle it
-      console.log('Unknown Error: ', err);
-      res.status(500).json({ message : "Something went wrong!"});
+      // 4. Create subscription and account internally
+      const subscription = await client.createSubscription({
+        planCode,
+        currency: 'CAD',
+        account: accountInfo
+      });
+
+      console.log('Created subscription:', subscription.uuid);
+      res.status(200).json({ success: true, message: 'Subscription created.' });
+    }
+  } catch (err: any) {
+    console.error("Error in /purchases:", err);
+    if (err instanceof recurly.errors.ValidationError) {
+      res.status(400).json({ error: err.params });
+    } else {
+      res.status(500).json({ error: 'Server error. Please try again.' });
     }
   }
 });
+
 
 app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);

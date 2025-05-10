@@ -1,8 +1,21 @@
 // Apply PUBLIC KEY for recurly
-recurly.configure('ewr1-7CmUOdfgabkiYdgBEvWjUj');
+recurly.configure('ewr1-Zp4ZhHebuqz3egBcKbHd6U');
 
-// Subscription's name
-const planCode = 'mongoosekclub-individuals';
+// Subscriptions' plans
+const individualsPlanCode = 'mongoosevipclub-individuals';
+const businessesPlanCode = 'mongoosevipclub-businesses';
+const oneTimePlanCode = 'mongoosevipclub-onetime';
+
+// Required Fields
+const requiredFields = [
+    'first_name',
+    'last_name',
+    'email',
+    'address1',
+    'city',
+    'state',
+    'postal_code'
+];
 
 // Recurly's element instance
 const elements = recurly.Elements();
@@ -26,59 +39,144 @@ const card = elements.CardElement({
   }
 });
 
-// Attach styles to DOM element
+// Attach cardElement to DOM
 card.attach('#recurly-elements');
 
 // <form> submission
 document.querySelector('#my-form').addEventListener('submit', async function (event) {
   event.preventDefault();
 
-  // Assign HTML form as current element
   const form = this;
 
-  // Wrap recurly.token (callback-based) in a Promise to use async/await
+  // Check plan option
+  const planOptions = form.querySelectorAll('input[name="plan_option"]');
+  const planCode = getPlanCode(planOptions);
+
+  if(!planCode){
+    alert("Please choose one of our plans to proceed.");
+    console.log("Please make sure you choose an option!");
+    return;
+  }
+
+  // Check for missing fields
+  validateFields(requiredFields, form);
+
+  // Fetch <form> values
+  const email = form.querySelector('input[name="email"]').value;
+  const firstName = form.querySelector('input[name="first_name"]').value;
+  const lastName = form.querySelector('input[name="last_name"]').value;
+  const customAmount = form.querySelector('input[name="custom_amount"]').value;
+  const street = form.querySelector('input[name="address1"]').value;
+  const city = form.querySelector('input[name="city"]').value;
+  const country = form.querySelector('select[name="country"]').value;
+  const state = form.querySelector('input[name="state"]').value;
+  const postalCode = form.querySelector('input[name="postal_code"]').value;
+
   try {
-    const token = await new Promise((resolve, reject) => {
-      recurly.token(elements, form, function (err, token) {
-        if (err) {
-          return reject(err);
-        }
-        resolve(token);
-      });
-    });
+    const token = await getToken(elements,form);
 
-    // Fetch <form> values
-    const email = form.querySelector('input[name="email"]').value;
-    const firstName = form.querySelector('input[name="first_name"]').value;
-    const lastName = form.querySelector('input[name="last_name"]').value;
-
-    // Create a purchaseData object
+    // Create a purchaseData object to be sent to backend server
     const purchaseData = {
       firstName,
       lastName,
       email,
+      customAmount,
       rjsTokenId: token.id,
-      planCode: planCode
+      planCode,
+      address: {
+        street,
+        city,
+        country,
+        state,
+        postalCode
+      }
     };
 
-    console.log('Sending purchaseData:', purchaseData);
-
-    // Build and send a POST request to the server with the purchase data
-    const response = await fetch('/purchases', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(purchaseData)
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Server responded with status ${response.status}`);
-    }
-
-    // Parse the server's response body as JSON
-    const json = await response.json();
-    console.log("Server responded: ", json);
+    await sendPurchaseData(purchaseData);
 
   } catch (error) {
     console.error("Something went wrong:", error);
   }
 });
+
+async function sendPurchaseData(data){
+  const response = await fetch('/purchases', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Server responded with status ${response.status}`);
+  }
+  
+  // Parse the server's response body as JSON
+  const json = await response.json();
+  console.log("Server responded: ", json);
+}
+
+function validateFields(fields, form){
+  let isValid = true;
+
+  // Clear previous errors
+  fields.forEach(fieldName => {
+    const input = form.querySelector(`[name="${fieldName}"]`);
+    if (input) input.classList.remove('input-error');
+  });
+
+  // Validate
+  fields.forEach(fieldName => {
+    const input = form.querySelector(`[name="${fieldName}"]`);
+    if (input && !input.value.trim()) {
+      input.classList.add('input-error');
+      isValid = false;
+    }
+  });
+
+  if (!isValid) {
+    alert("Please fill out all required fields.");
+    return;
+  }
+}
+
+function getPlanCode(buttons){
+  // Verify which plan option was checked
+  let selectedPlan;
+
+  buttons.forEach(radio => {
+    if(radio.checked){
+      selectedPlan = radio;
+    }
+  });
+
+  let planCode;
+
+  if(selectedPlan){
+    // Assign plan accordingly to option chosen
+    if(selectedPlan.value === 'individuals'){
+      planCode = individualsPlanCode;
+    }
+
+    if(selectedPlan.value === 'businesses'){
+      planCode = businessesPlanCode;
+    }
+
+    if(selectedPlan.value === 'onetime'){
+      planCode = oneTimePlanCode;
+    }
+  } else {
+    planCode = null;
+  }
+  return planCode;
+}
+
+async function getToken(elements,form){
+  return new Promise((resolve, reject) => {
+    recurly.token(elements, form, function (err, token) {
+      if (err) {
+        return reject(err);
+      }
+      resolve(token);
+    });
+  });
+}
