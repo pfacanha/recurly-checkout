@@ -147,11 +147,11 @@ function validateFields(fields, form){
   }
 }
 
-function getPlanCode(buttons){
+function getPlanCode(radioButtons){
   // Verify which plan option was checked
   let selectedPlan;
 
-  buttons.forEach(radio => {
+  radioButtons.forEach(radio => {
     if(radio.checked){
       selectedPlan = radio;
     }
