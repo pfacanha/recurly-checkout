@@ -113,7 +113,15 @@ async function sendPurchaseData(data){
   // Parse the server's response body as JSON
   const json = await response.json();
   console.log("Server responded: ", json);
-}
+
+  if (json.success) {
+    alert(json.message);
+    if (json.redirectUrl) {
+      window.location.href = json.redirectUrl;
+    }
+  } else {
+    alert("Something went wrong!");
+}}
 
 function validateFields(fields, form){
   let isValid = true;
