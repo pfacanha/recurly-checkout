@@ -16,47 +16,6 @@ app.use(express.static(path.join(__dirname,'public')));
 // Middlewares
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-
-// Authentication Middleware
-function authenticateApiKey(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-): void {
-  const apiKey = req.headers['x-api-key'];
-
-  if (apiKey === process.env.ADMIN_API_KEY) {
-    next();
-  } else {
-    res.status(401).json({ error: 'Unauthorized' });
-  }
-}
-
-// List site's subscriptions
-app.get("/subscriptions", authenticateApiKey, async (req, res) => {
-    try {
-      const subscriptions = client.listSubscriptions({
-        params: { state: "active", limit: 200 }
-      });
-      
-      const count = await subscriptions.count();
-  
-      const results = [];
-      for await (const subs of subscriptions.each()) {
-        results.push(subs.account);
-      }
-      
-      results.forEach(acc => {
-        //@ts-ignore
-        console.log(acc.firstName);
-      });
-      
-      res.status(200).json({ count, subscriptions : results });
-    } catch (error: any) {
-      console.error("Error fetching subscriptions:", error);
-      res.status(500).send(`Error: ${error.message}`);
-    }
-  });
   
 // Create a new subscription
 app.post("/purchases", async (req, res) => {
