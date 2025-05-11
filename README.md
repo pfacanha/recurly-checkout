@@ -3,7 +3,7 @@ A simple checkout integration using Recurly’s Hosted Payment Pages, built with
 
 ✅ Live on Render: https://recurly-checkout.onrender.com
 
-# ✨ Features
+## ✨ Features
 1. Secure subscription checkout via Recurly HPP (Hosted Payment Pages)
 
 2. TypeScript + Express server
@@ -12,7 +12,7 @@ A simple checkout integration using Recurly’s Hosted Payment Pages, built with
 
 4. Environment-based configuration for safe credential management
 
-# 🚀 Technologies
+## 🚀 Technologies
 - Node.js
 
 - Express
