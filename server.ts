@@ -17,8 +17,23 @@ app.use(express.static(path.join(__dirname,'public')));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+// Authentication Middleware
+function authenticateApiKey(
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+): void {
+  const apiKey = req.headers['x-api-key'];
+
+  if (apiKey === process.env.ADMIN_API_KEY) {
+    next();
+  } else {
+    res.status(401).json({ error: 'Unauthorized' });
+  }
+}
+
 // List site's subscriptions
-app.get("/subscriptions", async (req, res) => {
+app.get("/subscriptions", authenticateApiKey, async (req, res) => {
     try {
       const subscriptions = client.listSubscriptions({
         params: { state: "active", limit: 200 }
