@@ -82,11 +82,11 @@ app.post("/purchases", async (req, res) => {
       console.log('Charge Invoice: ', invoiceCollection.chargeInvoice);
       console.log('Credit Invoices: ', invoiceCollection.creditInvoices);
 
-      // 4. Send a message to user after completion
+      // 4. Send to the frontend a message after completion
       res.status(200).json({ success: true, message: 'One-time purchase completed. Thank you!', redirectUrl: 'https://powersportsengines.ca/mongoose-vip-club'});
 
     } else {
-      // 4. Create subscription and account internally
+      // 5. Create subscription and account internally
       const subscription = await client.createSubscription({
         planCode,
         currency: 'CAD',
@@ -94,7 +94,7 @@ app.post("/purchases", async (req, res) => {
       });
       console.log('Created subscription:', subscription.uuid);
 
-      // 4.1 Send message to user (1)
+      // 5.1 Send another message to the frontend
       res.status(200).json({ success: true, message: 'Subscription created. Thank you!', redirectUrl: 'https://powersportsengines.ca/mongoose-vip-club'});
     }
   } catch (err: any) {

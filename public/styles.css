@@ -16,7 +16,7 @@ html {
 body {
   margin: 0px;
   font-family: 'Inter', sans-serif;
-  background-color: white;
+  background-color: rgb(253, 248, 248);
   color: #333;
 }
 
@@ -25,13 +25,17 @@ h2 {
 }
 
 button {
+    width:100%;
     background: linear-gradient(135deg, #fbbf24, #ee873e) !important;
     color: white;
-    border-radius: 5px;
-    padding: 5px;
+    border: none;
+    padding: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    margin-top: 24px;
     cursor: pointer;
-    width: 100%;
-    margin-top: 10px;
+    transition: background 0.3s;
 }
 
 img {
@@ -46,6 +50,13 @@ label {
     color: black;
 }
 
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+/* Grid-boxes */
 .grid-box {
     display: grid;
     grid-template-columns: repeat(2,1fr);
@@ -134,11 +145,16 @@ label {
     flex-direction: column;
     align-items: center;
     min-height: 100vh;      
-    max-width: 1200px;   /* optional: prevent it from getting too wide */
-    padding: 2rem;
+    max-width: 1200px; 
+    max-width: 500px;
     margin: 0 auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
 }
 
+/* Media Queries */
 @media (max-width: 450px){
     #wrapper {
         display: flex;
