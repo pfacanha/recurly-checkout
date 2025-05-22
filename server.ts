@@ -3,7 +3,14 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import path from 'path';
 import 'dotenv/config';
+import { getPlanId } from './helpers/recurlyHelpers';
+
 const PORT = process.env.PORT || 8000;
+
+// Hardcoded strings
+const website = "https://powersportsengines.ca/mongoose-vip-club";
+const oneTimeSubscribed = "Thank you! Subscription was created and one-time charge was completed!"
+const subscribed = "Thank you! Subscription was created!"
 
 // Express client
 const app = express();
@@ -11,94 +18,104 @@ const app = express();
 // Recurly client
 const client = new recurly.Client(process.env.RECURLY_API_KEY as string);
 
-app.use(express.static(path.join(__dirname,'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Middlewares
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-  
-// Create a new subscription
+
+// Subscription's route
 app.post("/purchases", async (req, res) => {
+  // Request object
   const {
     firstName,
     lastName,
     email,
+    address1,
+    city,
+    state,
+    postalCode,
+    planCode,
     customAmount,
     rjsTokenId,
-    planCode,
-    address,
+    country
   } = req.body;
-
-  console.log("Incoming request:", req.body);
 
   // Assign email as unique identifier
   const accountCode = `code-${email}`;
 
-  const accountInfo = {
-    code: accountCode,
-    firstName,
-    lastName,
-    email,
-    preferredTimeZone: 'America/Chicago',
-    address: {
-      street1: address.street,
-      city: address.city,
-      region: address.state,
-      postalCode: address.postalCode,
-      country: address.country,
+  // Purchase object
+  let purchaseReq = {
+    currency: 'CAD',
+    account: {
+      code: accountCode,
+      firstName,
+      lastName,
+      email,
+      billingInfo: {
+        tokenId: rjsTokenId
+      }
     },
-    billingInfo: {
-      tokenId: rjsTokenId
-    }
+    subscriptions: [
+      { planCode: planCode },
+    ]
   };
 
+  
   try {
     if (planCode === 'mongoosevipclub-onetime') {
-      // 1. Create account
-      const account = await client.createAccount(accountInfo);
-      console.log('Created Account:', account.id);
+      // Fetch plan.id
+      const planId = await getPlanId(client, planCode);
+      
+      // Create an update object
+      const planUpdate = {
+        auto_renew: false,
+        currencies: [
+          {
+            currency: 'CAD',
+            unitAmount: customAmount
+          }
+        ]
+      };      
+      
+      const updatedPlan = await client.updatePlan(planId, planUpdate)
+      const currentPlanCode = updatedPlan.code;
+      console.log('Updated plan: ', currentPlanCode)
 
-      // 1.1 Check if account.id exists
-      if(!account.id){
-        throw new Error("Account code is missing after account creation");
-      }
-
-      // 2. Create one-time purchase
-      const lineItem = await client.createLineItem(account.id, {
+      // Update subscription object
+      let newPurchaseReq = {
         currency: 'CAD',
-        unitAmount: parseFloat(customAmount),
-        type: 'charge'
-      });
+        account: {
+          code: accountCode,
+          firstName,
+          lastName,
+          email,
+          billingInfo: {
+            tokenId: rjsTokenId
+          }
+        },
+        subscriptions: [
+          { planCode: currentPlanCode },
+        ]
+      };
 
-      console.log('Created one-time charge:', lineItem.uuid);
-
-      // 3. Generate an invoice for purchase so user can be notified and charged
-      let invoiceCreate = {
-        currency: 'CAD',
-        collectionMethod: 'automatic'
-      }
-      let invoiceCollection = await client.createInvoice(account.id, invoiceCreate);
-      console.log('Created Invoice');
-      console.log('Charge Invoice: ', invoiceCollection.chargeInvoice);
-      console.log('Credit Invoices: ', invoiceCollection.creditInvoices);
-
-      // 4. Send to the frontend a message after completion
-      res.status(200).json({ success: true, message: 'One-time purchase completed. Thank you!', redirectUrl: 'https://powersportsengines.ca/mongoose-vip-club'});
-
+      // Creates a new one time subscription with updated plan info
+      let oneTimeSubscription = await client.createPurchase(newPurchaseReq)
+      console.log('Created Charge Invoice: ', oneTimeSubscription.chargeInvoice);
+      console.log('Created Credit Invoices: ', oneTimeSubscription.creditInvoices);
+      
+      res.status(200).json({ success: true, message: oneTimeSubscribed, redirectUrl: website});
     } else {
-      // 5. Create subscription and account internally
-      const subscription = await client.createSubscription({
-        planCode,
-        currency: 'CAD',
-        account: accountInfo
-      });
-      console.log('Created subscription:', subscription.uuid);
+      // Creates a new subscription
+      let subscription = await client.createPurchase(purchaseReq);
+      console.log('Created Charge Invoice: ', subscription.chargeInvoice);
+      console.log('Created Credit Invoices: ', subscription.creditInvoices);
 
-      // 5.1 Send another message to the frontend
-      res.status(200).json({ success: true, message: 'Subscription created. Thank you!', redirectUrl: 'https://powersportsengines.ca/mongoose-vip-club'});
+      res.status(200).json({ success: true, message: subscribed, redirectUrl: website});
     }
   } catch (err: any) {
     console.error("Error in /purchases:", err);
+
     if (err instanceof recurly.errors.ValidationError) {
       res.status(400).json({ error: err.params });
     } else {
@@ -108,5 +125,5 @@ app.post("/purchases", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`);
+  console.log(`Server listening on port ${PORT}`);
 });

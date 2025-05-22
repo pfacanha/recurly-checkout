@@ -6,17 +6,6 @@ const individualsPlanCode = 'mongoosevipclub-individuals';
 const businessesPlanCode = 'mongoosevipclub-businesses';
 const oneTimePlanCode = 'mongoosevipclub-onetime';
 
-// Required Fields
-const requiredFields = [
-    'first_name',
-    'last_name',
-    'email',
-    'address1',
-    'city',
-    'state',
-    'postal_code'
-];
-
 // Recurly's element instance
 const elements = recurly.Elements();
 
@@ -42,60 +31,43 @@ const card = elements.CardElement({
 // Attach cardElement to DOM
 card.attach('#recurly-elements');
 
+// Get <form> inputs
+const textInputs = document.querySelectorAll('input[type="text"]');
+
+// Get radio options
+const planOptions = document.querySelectorAll('input[type="radio"]');
+
+// Display customAmount field if 'onetime' is selected
+updateOptionsStyle();
+
 // <form> submission
 document.querySelector('#my-form').addEventListener('submit', async function (event) {
   event.preventDefault();
 
-  const form = this;
-
-  // Check plan option
-  const planOptions = form.querySelectorAll('input[name="plan_option"]');
   const planCode = getPlanCode(planOptions);
 
-  if(!planCode){
-    alert("Please choose one of our plans to proceed.");
-    console.log("Please make sure you choose an option!");
-    return;
-  }
+  validatePlanCode(planCode);
 
-  // Check for missing fields
-  validateFields(requiredFields, form);
+  if (!validateInputs(textInputs)) return;
 
-  // Fetch <form> values
-  const email = form.querySelector('input[name="email"]').value;
-  const firstName = form.querySelector('input[name="first_name"]').value;
-  const lastName = form.querySelector('input[name="last_name"]').value;
-  const customAmount = form.querySelector('input[name="custom_amount"]').value;
-  const street = form.querySelector('input[name="address1"]').value;
-  const city = form.querySelector('input[name="city"]').value;
-  const country = form.querySelector('select[name="country"]').value;
-  const state = form.querySelector('input[name="state"]').value;
-  const postalCode = form.querySelector('input[name="postal_code"]').value;
+  const customAmount = document.querySelector('input[name="custom_amount"]');
+  const country = document.querySelector('select[name="country"]');
+  const form = this;
 
   try {
-    const token = await getToken(elements,form);
+    const token = await getToken(elements, form);
 
-    // Create a purchaseData object to be sent to backend server
-    const purchaseData = {
-      firstName,
-      lastName,
-      email,
-      customAmount,
-      rjsTokenId: token.id,
-      planCode,
-      address: {
-        street,
-        city,
-        country,
-        state,
-        postalCode
-      }
-    };
+    const purchaseData = getPurchaseData(form);
+    purchaseData["planCode"] = planCode;
+    purchaseData["customAmount"] = customAmount.value;
+    purchaseData["rjsTokenId"] = token.id;
+    purchaseData["country"] = country.value;
 
+    console.log("Sending to backend:", purchaseData);
     await sendPurchaseData(purchaseData);
 
   } catch (error) {
-    console.error("Something went wrong:", error);
+    console.error("Something went wrong during form submission:", error);
   }
 });
 
@@ -123,62 +95,7 @@ async function sendPurchaseData(data){
     alert("Something went wrong!");
 }}
 
-function validateFields(fields, form){
-  let isValid = true;
-
-  // Clear previous errors
-  fields.forEach(fieldName => {
-    const input = form.querySelector(`[name="${fieldName}"]`);
-    if (input) input.classList.remove('input-error');
-  });
-
-  // Validate
-  fields.forEach(fieldName => {
-    const input = form.querySelector(`[name="${fieldName}"]`);
-    if (input && !input.value.trim()) {
-      input.classList.add('input-error');
-      isValid = false;
-    }
-  });
-
-  if (!isValid) {
-    alert("Please fill out all required fields.");
-    return;
-  }
-}
-
-function getPlanCode(radioButtons){
-  // Verify which plan option was checked
-  let selectedPlan;
-
-  radioButtons.forEach(radio => {
-    if(radio.checked){
-      selectedPlan = radio;
-    }
-  });
-
-  let planCode;
-
-  if(selectedPlan){
-    // Assign plan accordingly to option chosen
-    if(selectedPlan.value === 'individuals'){
-      planCode = individualsPlanCode;
-    }
-
-    if(selectedPlan.value === 'businesses'){
-      planCode = businessesPlanCode;
-    }
-
-    if(selectedPlan.value === 'onetime'){
-      planCode = oneTimePlanCode;
-    }
-  } else {
-    planCode = null;
-  }
-  return planCode;
-}
-
-async function getToken(elements,form){
+function getToken(elements,form){
   return new Promise((resolve, reject) => {
     recurly.token(elements, form, function (err, token) {
       if (err) {
@@ -187,4 +104,104 @@ async function getToken(elements,form){
       resolve(token);
     });
   });
+}
+
+function getPlanCode(options){
+  let selectedPlan;
+
+  // 1.1 Iterate over radio buttons
+  options.forEach(option => {
+    // 1.2 Get the plan chosen
+    if(option.checked){
+      selectedPlan = option;
+    }
+  })
+
+  if(!selectedPlan){
+    console.log("Please select an option!");
+    return null;
+  }
+  // 1.3 Check with current plan options
+  let planCode;
+  if(selectedPlan.value === 'individuals'){
+    planCode = individualsPlanCode;
+  }
+  if(selectedPlan.value === 'businesses'){
+    planCode = businessesPlanCode;
+  }
+  if(selectedPlan.value === 'onetime'){
+    planCode = oneTimePlanCode;
+  }
+  return planCode;
+}
+
+function getPurchaseData(form){
+  // Create a purchase data obj
+  const data = {};
+
+  for (let element of form.elements){
+    // Populate purchaseData obj
+    if(element.type === "text"){
+      data[camelCase(element.name)] = element.value;
+    }
+  }
+  return data;
+}
+
+function validatePlanCode(code){
+  if(!code){
+    console.log("Invalid plan code, please choose an option");
+    alert("You must choose an option");
+    return;
+  }
+}
+
+function validateInputs(inputs){
+    // 2. Check if any input is missing
+    // 2.1 Iterate over all possibilities
+    isValid = true;
+
+    inputs.forEach(input => {
+      if(!input.value.trim()){
+        input.classList.add('input-error');
+        isValid = false;
+      } else {
+        input.classList.remove('input-error');
+      }
+    })
+
+    if(!isValid){
+      alert("Please fill up all required fields");
+    }
+
+    return isValid;
+}
+
+function updateOptionsStyle(){
+  // 3. Update plan options style
+  // Get HTML input element
+  const oneTimeInput = document.getElementById("onetime-amount");
+  // 3.1 loop through all options and on change, display block
+  planOptions.forEach(option => {
+    option.addEventListener('change', function () {
+    // if plan option is 'onetime' display = 'block'
+      if(option.value === 'onetime'){
+        // Change it to display textfield
+        oneTimeInput.style.display = 'block';
+    } else {
+      oneTimeInput.style.display = 'none';      
+    }
+  })
+})
+}
+
+function camelCase(str){
+  const newStr = str.split("_");
+
+  // If there's no second part, just return the original string
+  if (!newStr[1]) return newStr[0];
+
+  newStr[1] = newStr[1].charAt(0).toUpperCase() + newStr[1].slice(1).toLowerCase();
+
+  return newStr[0] + newStr[1];
 }
