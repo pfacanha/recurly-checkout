@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import recurly from 'recurly';
 import express from 'express';
 import bodyParser from 'body-parser';
@@ -9,9 +10,13 @@ const PORT = process.env.PORT || 8000;
 
 // Hardcoded strings
 const website = "https://powersportsengines.ca/mongoose-vip-club";
-const oneTimeSubscribed = "Thank you! Subscription was created and one-time charge was completed!"
-const subscribed = "Thank you! Subscription was created!"
-
+const oneTimeSubscribed = "Thank you! Subscription was created and one-time charge was completed!";
+const subscribed = "Thank you! Subscription was created!";
+const discountPage = `
+==== COUPONS AVAILABLE ====
+VISIT: https://powersportsengines.ca/discounts-vip-club
+===========================
+`;
 // Express client
 const app = express();
 
@@ -23,6 +28,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Middlewares
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+app.get("/invoices", async (req, res) => {
+  // Fetch all site's invoices
+  const invoices = client.listInvoices({ params: { limit: 200, state: 'paid' } })
+
+  for await (const invoice of invoices.each()) {
+    console.log(invoice.id)
+}
+
+})
+
 
 // Subscription's route
 app.post("/purchases", async (req, res) => {
@@ -58,7 +74,8 @@ app.post("/purchases", async (req, res) => {
     },
     subscriptions: [
       { planCode: planCode },
-    ]
+    ],
+    customer_notes: discountPage
   };
 
   
@@ -96,11 +113,12 @@ app.post("/purchases", async (req, res) => {
         },
         subscriptions: [
           { planCode: currentPlanCode },
-        ]
+        ],
+        customer_notes: discountPage
       };
 
       // Creates a new one time subscription with updated plan info
-      let oneTimeSubscription = await client.createPurchase(newPurchaseReq)
+      let oneTimeSubscription = await client.createPurchase(newPurchaseReq);
       console.log('Created Charge Invoice: ', oneTimeSubscription.chargeInvoice);
       console.log('Created Credit Invoices: ', oneTimeSubscription.creditInvoices);
       
