@@ -29,16 +29,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.get("/invoices", async (req, res) => {
-  // Fetch all site's invoices
-  const invoices = client.listInvoices({ params: { limit: 200, state: 'paid' } })
-
-  for await (const invoice of invoices.each()) {
-    console.log(invoice.id)
-}
-
-})
-
 
 // Subscription's route
 app.post("/purchases", async (req, res) => {
