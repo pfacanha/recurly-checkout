@@ -1,5 +1,5 @@
 # Recurly Checkout
-A simple checkout integration using Recurly’s Hosted Payment Pages, built with Node.js and TypeScript.
+A simple checkout integration using Recurly’s API, built with Node.js and TypeScript.
 
 ✅ Live on Render: https://recurly-checkout.onrender.com
 
