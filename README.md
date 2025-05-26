@@ -1,5 +1,5 @@
 # Recurly Checkout
-A simple checkout integration using Recurly’s API, built with Node.js and TypeScript.
+A full-stack form-based authentication and subscription integration built using Recurly’s API. The frontend is developed with HTML, CSS, and vanilla JavaScript, providing a responsive and user-friendly interface. The backend is powered by Node.js and Express.js, with secure handling of customer data and subscription logic. This solution enables users to sign up for recurring services or memberships, with seamless communication between the frontend form and Recurly's API for subscription management..
 
 ✅ Live on Render: https://recurly-checkout.onrender.com
 
