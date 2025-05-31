@@ -1,5 +1,5 @@
 // Apply PUBLIC KEY for recurly
-recurly.configure('ewr1-Zp4ZhHebuqz3egBcKbHd6U');
+recurly.configure('ewr1-7CmUOdfgabkiYdgBEvWjUj');
 
 // Subscriptions' plans
 const individualsPlanCode = 'mongoosevipclub-individuals';
