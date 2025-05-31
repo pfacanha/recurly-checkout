@@ -1,5 +1,5 @@
 import recurly from 'recurly';
-import axios from 'axios'; // add to top of file if not there
+import axios from 'axios';
 import express from 'express';
 import bodyParser from 'body-parser';
 import path from 'path';
@@ -67,7 +67,7 @@ app.post("/purchases", async (req, res) => {
   
   try {
 
-    const recaptchaRes = await axios.post(`https://www.google.com/recaptcha/api/siteverify`, null, {
+    await axios.post(`https://www.google.com/recaptcha/api/siteverify`, null, {
     params: {
       secret: process.env.RECAPTCHA_SECRET_KEY,
       response: recaptchaToken
