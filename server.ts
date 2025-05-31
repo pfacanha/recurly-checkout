@@ -1,5 +1,4 @@
 import recurly from 'recurly';
-import axios from 'axios';
 import express from 'express';
 import bodyParser from 'body-parser';
 import path from 'path';
@@ -66,13 +65,20 @@ app.post("/purchases", async (req, res) => {
   };
   
   try {
-
-    await axios.post(`https://www.google.com/recaptcha/api/siteverify`, null, {
-    params: {
-      secret: process.env.RECAPTCHA_SECRET_KEY,
-      response: recaptchaToken
-      }
+    
+    // Get reCAPTCHA response
+    const verifyResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        secret: process.env.RECAPTCHA_SECRET_KEY as string,
+        response: recaptchaToken
+      })
     });
+
+    await verifyResponse.json();
 
     if (planCode === 'mongoosevipclub-onetime') {
       
