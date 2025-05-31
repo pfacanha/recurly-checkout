@@ -1,5 +1,5 @@
-import fs from 'node:fs';
 import recurly from 'recurly';
+import axios from 'axios'; // add to top of file if not there
 import express from 'express';
 import bodyParser from 'body-parser';
 import path from 'path';
@@ -40,7 +40,8 @@ app.post("/purchases", async (req, res) => {
     planCode,
     customAmount,
     rjsTokenId,
-    country
+    country,
+    recaptchaToken
   } = req.body;
 
   // Assign email as unique identifier
@@ -63,8 +64,16 @@ app.post("/purchases", async (req, res) => {
     ],
     customer_notes: discountPage
   };
-
+  
   try {
+
+    const recaptchaRes = await axios.post(`https://www.google.com/recaptcha/api/siteverify`, null, {
+    params: {
+      secret: process.env.RECAPTCHA_SECRET_KEY,
+      response: recaptchaToken
+      }
+    });
+
     if (planCode === 'mongoosevipclub-onetime') {
       
       const planId = await getPlanId(client, planCode);

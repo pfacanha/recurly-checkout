@@ -73,6 +73,14 @@ document.querySelector('#my-form').addEventListener('submit', async function (ev
 });
 
 async function sendPurchaseData(data){
+  // Send reCHAPTCHA response to backend
+  const recaptchaToken = grecaptcha.getResponse();
+  if (!recaptchaToken) {
+    alert("Please complete the reCAPTCHA.");
+    return;
+  }
+  data["recaptchaToken"] = recaptchaToken;
+
   const response = await fetch('/purchases', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -111,9 +119,9 @@ function getToken(elements,form){
 function getPlanCode(options){
   let selectedPlan;
 
-  // 1.1 Iterate over radio buttons
+  // Iterate over radio buttons
   options.forEach(option => {
-    // 1.2 Get the plan chosen
+    // Get the plan chosen
     if(option.checked){
       selectedPlan = option;
     }
@@ -123,7 +131,7 @@ function getPlanCode(options){
     console.log("Please select an option!");
     return null;
   }
-  // 1.3 Check with current plan options
+  // Check with current plan options
   let planCode;
   if(selectedPlan.value === 'individuals'){
     planCode = individualsPlanCode;
@@ -160,8 +168,8 @@ function validatePlanCode(code){
 }
 
 function validateInputs(inputs){
-    // 2. Check if any input is missing
-    // 2.1 Iterate over all possibilities
+    // Check if any input is missing
+    // Iterate over all possibilities
     isValid = true;
 
     inputs.forEach(input => {
@@ -181,10 +189,10 @@ function validateInputs(inputs){
 }
 
 function updateOptionsStyle(){
-  // 3. Update plan options style
+  // Update plan options style
   // Get HTML input element
   const oneTimeInput = document.getElementById("onetime-amount");
-  // 3.1 loop through all options and on change, display block
+  // Loop through all options and on change, display block
   planOptions.forEach(option => {
     option.addEventListener('change', function () {
     // if plan option is 'onetime' display = 'block'

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://js.recurly.com/v4/recurly.js" defer></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <script src="./main.js" defer></script>
     <link href="https://js.recurly.com/v4/recurly.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="./styles.css">
@@ -133,7 +134,6 @@
 
               <option value="CA" selected>Canada</option>
               <option value="US">United States</option>
-              <option value="BR">Brazil</option>
 
             </select>
             
@@ -163,7 +163,10 @@
             type="hidden" 
             name="recurly-token" 
             data-recurly="token">
-          
+            
+            <!-- Google reCAPTCHA v2 widget -->
+            <div class="g-recaptcha" data-sitekey="6LchU0wrAAAAAADsK_Dm-003QygoYcwP6p_684ZX"></div>
+
             <button type="submit">Submit</button>
         </form>
 
