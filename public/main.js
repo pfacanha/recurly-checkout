@@ -68,6 +68,7 @@ document.querySelector('#my-form').addEventListener('submit', async function (ev
 
   } catch (error) {
     console.error("Something went wrong during form submission:", error);
+    alert(error.message);
   }
 });
 
@@ -77,13 +78,14 @@ async function sendPurchaseData(data){
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   });
-  
-  if (!response.ok) {
-    throw new Error(`Server responded with status ${response.status}`);
-  }
-  
+
   // Parse the server's response body as JSON
   const json = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(json.error[0].message);
+  }
+  
   console.log("Server responded: ", json);
 
   if (json.success) {
@@ -133,6 +135,7 @@ function getPlanCode(options){
     planCode = oneTimePlanCode;
   }
   return planCode;
+
 }
 
 function getPurchaseData(form){

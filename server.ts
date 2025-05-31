@@ -64,10 +64,9 @@ app.post("/purchases", async (req, res) => {
     customer_notes: discountPage
   };
 
-  
   try {
     if (planCode === 'mongoosevipclub-onetime') {
-      // Fetch plan.id
+      
       const planId = await getPlanId(client, planCode);
       
       // Create an update object
@@ -81,30 +80,16 @@ app.post("/purchases", async (req, res) => {
         ]
       };      
       
+      // Update plan info 
       const updatedPlan = await client.updatePlan(planId, planUpdate)
       const currentPlanCode = updatedPlan.code;
       console.log('Updated plan: ', currentPlanCode)
 
       // Update subscription object
-      let newPurchaseReq = {
-        currency: 'CAD',
-        account: {
-          code: accountCode,
-          firstName,
-          lastName,
-          email,
-          billingInfo: {
-            tokenId: rjsTokenId
-          }
-        },
-        subscriptions: [
-          { planCode: currentPlanCode },
-        ],
-        customer_notes: discountPage
-      };
+      purchaseReq.subscriptions[0].planCode = currentPlanCode;
 
       // Creates a new one time subscription with updated plan info
-      let oneTimeSubscription = await client.createPurchase(newPurchaseReq);
+      let oneTimeSubscription = await client.createPurchase(purchaseReq);
       console.log('Created Charge Invoice: ', oneTimeSubscription.chargeInvoice);
       console.log('Created Credit Invoices: ', oneTimeSubscription.creditInvoices);
       
