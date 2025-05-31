@@ -91,8 +91,7 @@ async function sendPurchaseData(data){
   const json = await response.json();
   
   if (!response.ok) {
-    console.log(json.error);
-    throw new Error("Personal or Card information is invalid");
+    throw new Error(json.error);
   }
   
   console.log("Server responded: ", json);
