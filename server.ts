@@ -97,7 +97,7 @@ app.post("/purchases", async (req, res) => {
     if (err instanceof recurly.errors.ValidationError) {
       res.status(400).json({ error: err.params });
     } else {
-      res.status(500).json({ error: err.message || 'Server error. Please try again.' }); // <--- Send actual error message
+      res.status(500).json({ error: err.message || 'Server error. Please try again.' });
     }
   }
 });
