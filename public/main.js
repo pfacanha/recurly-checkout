@@ -68,7 +68,7 @@ document.querySelector('#my-form').addEventListener('submit', async function (ev
 
   } catch (error) {
     console.error("Something went wrong during form submission:", error);
-    alert(error.message);
+    alert(error);
   }
 });
 
