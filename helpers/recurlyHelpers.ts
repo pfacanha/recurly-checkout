@@ -27,14 +27,14 @@ export async function getRecaptcha(token: any, url: string){
     await verifyResponse.json();
 }
 
-export async function updatePlan(customAmount: number, client: recurly.Client, planId: string, purchaseObj: any){
+export async function updatePlan(customAmount: string, client: recurly.Client, planId: string, purchaseObj: any){
     // Create an update object
       const planUpdate = {
         auto_renew: false,
         currencies: [
           {
             currency: 'CAD',
-            unitAmount: customAmount
+            unitAmount: parseFloat(customAmount)
           }
         ]
       };      
