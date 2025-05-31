@@ -68,7 +68,6 @@ document.querySelector('#my-form').addEventListener('submit', async function (ev
 
   } catch (error) {
     console.error("Something went wrong during form submission:", error);
-    console.log(error);
     alert(error.message);
   }
 });
@@ -92,6 +91,7 @@ async function sendPurchaseData(data){
   const json = await response.json();
   
   if (!response.ok) {
+    console.log(json.error);
     throw new Error("Personal or Card information is invalid");
   }
   
