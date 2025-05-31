@@ -66,9 +66,9 @@ document.querySelector('#my-form').addEventListener('submit', async function (ev
     console.log("Sending to backend:", purchaseData);
     await sendPurchaseData(purchaseData);
 
-  } catch (error) {
-    console.error("Something went wrong during form submission:", error);
-    alert(error);
+  } catch (err) {
+    console.error("Something went wrong during form submission:", err);
+    alert(err.error);
   }
 });
 
