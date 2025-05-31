@@ -3,15 +3,16 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import path from 'path';
 import 'dotenv/config';
-import { getPlanId } from './helpers/recurlyHelpers';
+import { getPlanId, getRecaptcha, updatePlan } from './helpers/recurlyHelpers';
 
 const PORT = process.env.PORT;
 
 // Hardcoded strings
 const website = process.env.WEBSITE;
-const oneTimeSubscribed = "Thank you! Subscription was created and one-time charge was completed!";
-const subscribed = "Thank you! Subscription was created!";
+const oneTimeSubscribed = process.env.ONE_TIME_MESSAGE;
+const subscribed = process.env.SUB_MESSAGE;
 const discountPage = process.env.DISCOUNT_PAGE;
+const recaptchaUrl = 'https://www.google.com/recaptcha/api/siteverify';
 // Express client
 const app = express();
 
@@ -23,7 +24,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Middlewares
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-
 
 // Subscription's route
 app.post("/purchases", async (req, res) => {
@@ -65,46 +65,19 @@ app.post("/purchases", async (req, res) => {
   };
   
   try {
-    
     // Get reCAPTCHA response
-    const verifyResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        secret: process.env.RECAPTCHA_SECRET_KEY as string,
-        response: recaptchaToken
-      })
-    });
+    await getRecaptcha(recaptchaToken, recaptchaUrl);
 
-    await verifyResponse.json();
-
+    // Check plan code
     if (planCode === 'mongoosevipclub-onetime') {
       
       const planId = await getPlanId(client, planCode);
       
-      // Create an update object
-      const planUpdate = {
-        auto_renew: false,
-        currencies: [
-          {
-            currency: 'CAD',
-            unitAmount: customAmount
-          }
-        ]
-      };      
-      
-      // Update plan info 
-      const updatedPlan = await client.updatePlan(planId, planUpdate)
-      const currentPlanCode = updatedPlan.code;
-      console.log('Updated plan: ', currentPlanCode)
-
-      // Update subscription object
-      purchaseReq.subscriptions[0].planCode = currentPlanCode;
+      // Update purchase object
+      const updatedPurchase = await updatePlan(customAmount, client, planId, purchaseReq)
 
       // Creates a new one time subscription with updated plan info
-      let oneTimeSubscription = await client.createPurchase(purchaseReq);
+      let oneTimeSubscription = await client.createPurchase(updatedPurchase);
       console.log('Created Charge Invoice: ', oneTimeSubscription.chargeInvoice);
       console.log('Created Credit Invoices: ', oneTimeSubscription.creditInvoices);
       
