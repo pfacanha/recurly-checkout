@@ -1,5 +1,0 @@
-reCAPTCHA
-
-Site Key: 6LchU0wrAAAAAADsK_Dm-003QygoYcwP6p_684ZX
-
-Secret Key: 6LchU0wrAAAAAKK-E_4MVpI7XjoUga4HrSwyTOnr
