@@ -91,14 +91,15 @@ app.post("/purchases", async (req, res) => {
       res.status(200).json({ success: true, message: subscribed, redirectUrl: website});
     }
   } catch (err: any) {
-    console.error("Error in /purchases:", err);
+  console.error("Error in /purchases:", err);
+  console.error("Error stack:", err.stack); // <-- Add this!
 
-    if (err instanceof recurly.errors.ValidationError) {
-      res.status(400).json({ error: err.params });
-    } else {
-      res.status(500).json({ error: 'Server error. Please try again.' });
-    }
+  if (err instanceof recurly.errors.ValidationError) {
+    res.status(400).json({ error: err.params });
+  } else {
+    res.status(500).json({ error: err.message || 'Server error. Please try again.' }); // <--- Send actual error message
   }
+}
 });
 
 app.listen(PORT, () => {
