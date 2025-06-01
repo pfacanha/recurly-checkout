@@ -93,17 +93,22 @@ async function sendPurchaseData(data){
   
   // Request error handler
   if (!response.ok) {
-    console.log(response);
-    console.log(json.error);
+    console.log("Response status:", response.status);
+    console.log("Response statusText:", response.statusText);
+    console.log("Response body error:", json.error);
+
     let errMessage = '';
 
-    if(Array.isArray(json.error)){
-      json.error.forEach(err => {
-        errMessage += err.message + '\n';
-      })
+    if (Array.isArray(json.error.details)) {
+      json.error.details.forEach(err => {
+        errMessage += `${err.field}: ${err.message}\n`;
+      });
+    } else if (json.error.message) {
+      errMessage = json.error.message;
     } else {
-      errMessage = json.error;
+      errMessage = JSON.stringify(json.error);
     }
+
     throw new Error(errMessage.trim());
   }
 

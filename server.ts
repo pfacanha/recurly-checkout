@@ -96,6 +96,7 @@ app.post("/purchases", async (req, res) => {
     console.error("Error stack:", err.stack);
 
     if (err instanceof recurly.errors.ValidationError) {
+      console.error("Validation Error Params: ", err.params);
       res.status(400).json({ error: err.params });
     } else {
       res.status(500).json({ error: err.message || 'Server error. Please try again.' });
