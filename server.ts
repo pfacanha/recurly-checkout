@@ -92,7 +92,7 @@ app.post("/purchases", async (req, res) => {
     }
   } catch (err: any) {
     console.error("Error in /purchases:", err);
-    console.error("Error stack:", err.stack); // <-- Add this!
+    console.error("Error stack:", err.stack);
 
     if (err instanceof recurly.errors.ValidationError) {
       res.status(400).json({ error: err.params });

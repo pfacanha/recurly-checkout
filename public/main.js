@@ -90,8 +90,19 @@ async function sendPurchaseData(data){
   // Parse the server's response body as JSON
   const json = await response.json();
   
+  // Error handler
   if (!response.ok) {
-    throw new Error(json.error);
+    console.log(json.error);
+    let errMessage = '';
+
+    if(Array.isArray(json.error)){
+      json.error.forEach(msg => {
+        errMessage += msg.message + '\n';
+      })
+    } else {
+      errMessage = json.error;
+    }
+    throw new Error(errMessage.trim());
   }
   
   console.log("Server responded: ", json);
