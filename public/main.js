@@ -73,7 +73,7 @@ document.querySelector('#my-form').addEventListener('submit', async function (ev
 });
 
 async function sendPurchaseData(data){
-  // Send reCHAPTCHA response to backend
+  // Get and attach reCHAPTCHA response to data
   const recaptchaToken = grecaptcha.getResponse();
   if (!recaptchaToken) {
     alert("Please complete the reCAPTCHA.");

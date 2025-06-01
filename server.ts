@@ -13,6 +13,7 @@ const oneTimeSubscribed = process.env.ONE_TIME_MESSAGE;
 const subscribed = process.env.SUB_MESSAGE;
 const discountPage = process.env.DISCOUNT_PAGE;
 const recaptchaUrl = 'https://www.google.com/recaptcha/api/siteverify';
+
 // Express client
 const app = express();
 
