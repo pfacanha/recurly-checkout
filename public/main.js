@@ -96,8 +96,8 @@ async function sendPurchaseData(data){
     let errMessage = '';
 
     if(Array.isArray(json.error)){
-      json.error.forEach(msg => {
-        errMessage += msg.message + '\n';
+      json.error.forEach(err => {
+        errMessage += err.message + '\n';
       })
     } else {
       errMessage = json.error;
