@@ -91,7 +91,7 @@ async function sendPurchaseData(data){
   const json = await response.json();
   console.log("Server responded: ", json);
   
-  // Request error handler
+  // Request handler
   if (!response.ok) {
     console.log("Response status:", response.status);
     console.log("Response statusText:", response.statusText);
@@ -112,7 +112,7 @@ async function sendPurchaseData(data){
     throw new Error(errMessage.trim());
   }
 
-  // Response error handler
+  // Response handler
   if (json.success) {
     alert(json.message);
     if (json.redirectUrl) {

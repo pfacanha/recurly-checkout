@@ -28,6 +28,9 @@ app.use(bodyParser.json());
 
 // Subscription's route
 app.post("/purchases", async (req, res) => {
+
+  console.log("Req.body: ", req.body);
+
   // Request object
   const {
     firstName,
