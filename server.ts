@@ -28,9 +28,6 @@ app.use(bodyParser.json());
 
 // Subscription's route
 app.post("/purchases", async (req, res) => {
-
-  console.log("Req.body: ", req.body);
-
   // Request object
   const {
     firstName,
@@ -99,10 +96,10 @@ app.post("/purchases", async (req, res) => {
     console.error("Error stack:", err.stack);
 
     if (err instanceof recurly.errors.ValidationError) {
-      console.error("Validation Error Params: ", err.params);
-      res.status(400).json({ error: err.params });
+      console.error("Validation Error Message: ", err.message);
+      res.status(400).json({ error: err.message });
     } else {
-      res.status(500).json({ error: err.message || 'Server error. Please try again.' });
+      res.status(500).json({ error: err.message });
     }
   }
 });

@@ -68,11 +68,7 @@ document.querySelector('#my-form').addEventListener('submit', async function (ev
 
   } catch (error) {
     console.error("Something went wrong during form submission:", error);
-    if(error.message){
-      alert(error.message);
-    } else {
-      alert(error);
-    }
+    alert(error.message);
   }
 });
 
@@ -94,37 +90,14 @@ async function sendPurchaseData(data){
   // Parse the server's response body as JSON
   const json = await response.json();
   console.log("Server responded: ", json);
-  
-  // Request handler
-  if (!response.ok) {
-    console.log("Response status:", response.status);
-    console.log("Response statusText:", response.statusText);
-    console.log("Response body error:", json.error);
 
-    let errMessage = '';
-
-    if (Array.isArray(json.error.details)) {
-      json.error.details.forEach(err => {
-        errMessage += `${err.field}: ${err.message}\n`;
-      });
-    } else if (json.error.message) {
-      errMessage = json.error.message;
-    } else {
-      errMessage = JSON.stringify(json.error);
-    }
-
-    throw new Error(errMessage.trim());
-  }
-
-  // Response handler
-  if (json.success) {
-    alert(json.message);
-    if (json.redirectUrl) {
-      window.location.href = json.redirectUrl;
-    }
+  if(json.success){
+    alert(json.message)
+    window.location.href = json.redirectUrl
   } else {
-    alert("Something went wrong!");
-}}
+    throw new Error(json.error);
+  }
+}
 
 function getToken(elements,form){
   return new Promise((resolve, reject) => {
