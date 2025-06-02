@@ -69,7 +69,10 @@ app.post("/purchases", async (req, res) => {
     planCode: planCode,
     currency: `CAD`,
     account: {
-      code: accountCode
+      code: accountCode,
+      billingInfo: {
+        tokenId: rjsTokenId
+      }
     }
   }
 
