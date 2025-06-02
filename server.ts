@@ -64,17 +64,6 @@ app.post("/purchases", async (req, res) => {
     ],
     customer_notes: discountPage
   };
-  
-  let subscriptionReq = {
-    planCode: planCode,
-    currency: `CAD`,
-    account: {
-      code: accountCode,
-      billingInfo: {
-        tokenId: rjsTokenId
-      }
-    }
-  }
 
   try {
     // Get reCAPTCHA response
@@ -96,9 +85,10 @@ app.post("/purchases", async (req, res) => {
       res.status(200).json({ success: true, message: oneTimeSubscribed, redirectUrl: website});
     } else {
       // Creates a new subscription
-      let sub = await client.createSubscription(subscriptionReq)
-      console.log('Created subscription: ', sub.uuid)
-
+      let subscription = await client.createPurchase(purchaseReq);
+      console.log('Created Charge Invoice: ', subscription.chargeInvoice);
+      console.log('Created Credit Invoices: ', subscription.creditInvoices);
+      
       res.status(200).json({ success: true, message: subscribed, redirectUrl: website});
     }
   } catch (err: any) {
