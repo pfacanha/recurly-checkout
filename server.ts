@@ -8,10 +8,10 @@ import { getPlanId, getRecaptcha, updatePlan } from './helpers/recurlyHelpers';
 const PORT = process.env.PORT;
 
 // Hardcoded strings
-const website = process.env.WEBSITE;
-const oneTimeSubscribed = process.env.ONE_TIME_MESSAGE;
-const subscribed = process.env.SUB_MESSAGE;
-const discountPage = process.env.DISCOUNT_PAGE;
+const website = "https://powersportsengines.ca/mongoose-vip-club";
+const oneTimeSubscribed = "Thank you! Subscription was created and one-time charge was completed!";
+const subscribed = "Thank you! Subscription was created!";
+const discountPage = "==== COUPONS AVAILABLE ==== VISIT: https://powersportsengines.ca/discounts-vip-club ===========================";
 const recaptchaUrl = 'https://www.google.com/recaptcha/api/siteverify';
 
 // Express client
@@ -55,6 +55,11 @@ app.post("/purchases", async (req, res) => {
       firstName,
       lastName,
       email,
+      address1,
+      city,
+      state,
+      postalCode,
+      country,
       billingInfo: {
         tokenId: rjsTokenId
       }
