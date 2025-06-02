@@ -55,11 +55,6 @@ app.post("/purchases", async (req, res) => {
       firstName,
       lastName,
       email,
-      address1,
-      city,
-      state,
-      postalCode,
-      country,
       billingInfo: {
         tokenId: rjsTokenId
       }
