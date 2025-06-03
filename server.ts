@@ -11,7 +11,7 @@ const PORT = process.env.PORT;
 const website = "https://powersportsengines.ca/mongoose-vip-club";
 const oneTimeSubscribed = "Thank you! Subscription was created and one-time charge was completed!";
 const subscribed = "Thank you! Subscription was created!";
-const discountPage = "==== COUPONS AVAILABLE ==== VISIT: https://powersportsengines.ca/discounts-vip-club ===========================";
+const discountPage = process.env.DISCOUNT_PAGE;
 const recaptchaUrl = 'https://www.google.com/recaptcha/api/siteverify';
 
 // Express client
@@ -33,14 +33,9 @@ app.post("/purchases", async (req, res) => {
     firstName,
     lastName,
     email,
-    address1,
-    city,
-    state,
-    postalCode,
     planCode,
     customAmount,
     rjsTokenId,
-    country,
     recaptchaToken
   } = req.body;
 
@@ -77,7 +72,7 @@ app.post("/purchases", async (req, res) => {
       // Update purchase object
       const updatedPurchase = await updatePlan(customAmount, client, planId, purchaseReq)
 
-      // Creates a new one time purchase with updated plan info
+      // Creates a new one time/subscription purchase with updated plan info
       let oneTimeSubscription = await client.createPurchase(updatedPurchase);
       console.log('Created Charge Invoice: ', oneTimeSubscription.chargeInvoice);
       console.log('Created Credit Invoices: ', oneTimeSubscription.creditInvoices);
@@ -88,7 +83,7 @@ app.post("/purchases", async (req, res) => {
       let subscription = await client.createPurchase(purchaseReq);
       console.log('Created Charge Invoice: ', subscription.chargeInvoice);
       console.log('Created Credit Invoices: ', subscription.creditInvoices);
-      
+
       res.status(200).json({ success: true, message: subscribed, redirectUrl: website});
     }
   } catch (err: any) {
@@ -97,7 +92,7 @@ app.post("/purchases", async (req, res) => {
 
     if (err instanceof recurly.errors.ValidationError) {
       console.error("Validation Error Message: ", err.message);
-      res.status(400).json({ error: err.message });
+      res.status(400).json({ error: err.params });
     } else {
       res.status(500).json({ error: err.message });
     }
