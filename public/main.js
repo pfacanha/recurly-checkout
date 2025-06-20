@@ -1,15 +1,12 @@
-// Apply PUBLIC KEY for recurly
+// PUBLIC KEY for recurly
 recurly.configure("ewr1-7CmUOdfgabkiYdgBEvWjUj");
 
-// Subscriptions' plans
 const individualsPlanCode = "mongoosevipclub-individuals";
 const businessesPlanCode = "mongoosevipclub-businesses";
 const oneTimePlanCode = "mongoosevipclub-onetime";
 
-// Recurly's element instance
 const elements = recurly.Elements();
 
-// Apply styles to CardElement
 const card = elements.CardElement({
   inputType: "mobileSelect",
   style: {
@@ -28,19 +25,14 @@ const card = elements.CardElement({
   },
 });
 
-// Attach cardElement to DOM
 card.attach("#recurly-elements");
 
-// Get <form> inputs
 const textInputs = document.querySelectorAll('input[type="text"]');
 
-// Get radio options
 const planOptions = document.querySelectorAll('input[type="radio"]');
 
-// Display customAmount field if 'onetime' ooption is selected
 updateOptionsStyle();
 
-// <form> submission
 document.querySelector("#my-form").addEventListener("submit", async function (event) {
     event.preventDefault();
 
@@ -63,6 +55,7 @@ document.querySelector("#my-form").addEventListener("submit", async function (ev
 
       console.log("Sending to backend:", purchaseData);
       await sendPurchaseData(purchaseData);
+      
     } catch (error) {
       console.error("Something went wrong during form submission:", error);
       if (Array.isArray(error) && error.length > 0) {
@@ -80,6 +73,7 @@ async function sendPurchaseData(data) {
     alert("Please complete the reCAPTCHA.");
     return;
   }
+  
   data["recaptchaToken"] = recaptchaToken;
 
   const response = await fetch("/purchases", {

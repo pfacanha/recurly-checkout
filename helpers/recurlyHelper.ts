@@ -12,19 +12,20 @@ export async function getPlanId(client: recurly.Client, planCode: string): Promi
   throw new Error(`Plan code ${planCode} is invalid or not found.`);
 }
 
-export async function getRecaptcha(token: any, url: string){
+export async function getRecaptcha(token: string, url: string): Promise<boolean> {
   const verifyResponse = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        secret: process.env.RECAPTCHA_SECRET_KEY as string,
-        response: token
-      })
-    });
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      secret: process.env.RECAPTCHA_SECRET_KEY as string,
+      response: token
+    })
+  });
 
-    await verifyResponse.json();
+  const data = await verifyResponse.json();
+  return data.success === true;
 }
 
 export async function updatePlan(customAmount: string, client: recurly.Client, planId: string, purchaseObj: any){
