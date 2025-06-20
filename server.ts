@@ -4,7 +4,6 @@ import bodyParser from 'body-parser';
 import path from 'path';
 import 'dotenv/config';
 import { getPlanId, getRecaptcha, updatePlan } from './helpers/recurlyHelper';
-import { verifyRecaptchaEnterprise } from './helpers/recaptchaHelper';
 
 const PORT = process.env.PORT;
 
