@@ -3,7 +3,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import path from 'path';
 import 'dotenv/config';
-import { getPlanId, getRecaptcha, updatePlan } from './helpers/recurlyHelper';
+import { getPlanId, getRecaptcha, updatePlan } from './helpers/recurlyHelpers';
 
 const PORT = process.env.PORT;
 
