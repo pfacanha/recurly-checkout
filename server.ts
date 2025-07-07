@@ -8,7 +8,7 @@ import { getPlanId, getRecaptcha, updatePlan } from './helpers/recurlyHelpers';
 const PORT = process.env.PORT;
 
 // Hardcoded strings
-const website = "https://powersportsengines.ca/powersportsengines-vip-club";
+const website = "https://powersportsengines.com/powersportsengines-vip-club";
 const oneTimeSubscribed = "Thank you! Subscription was created and one-time charge was completed!";
 const subscribed = "Thank you! Subscription was created!";
 const discountPage = process.env.DISCOUNT_PAGE;
