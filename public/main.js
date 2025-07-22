@@ -42,36 +42,36 @@ updateOptionsStyle();
 
 // <form> submission
 document.querySelector("#my-form").addEventListener("submit", async function (event) {
-    event.preventDefault();
+  event.preventDefault();
 
-    const planCode = getPlanCode(planOptions);
+  const planCode = getPlanCode(planOptions);
 
-    validatePlanCode(planCode);
+  validatePlanCode(planCode);
 
-    if (!validateInputs(textInputs)) return;
+  if (!validateInputs(textInputs)) return;
 
-    const customAmount = document.querySelector('input[name="custom_amount"]');
-    const form = this;
+  const customAmount = document.querySelector('input[name="custom_amount"]');
+  const form = this;
 
-    try {
-      const token = await getToken(elements, form);
+  try {
+    const token = await getToken(elements, form);
 
-      const purchaseData = getPurchaseData(form);
-      purchaseData["planCode"] = planCode;
-      purchaseData["customAmount"] = customAmount.value;
-      purchaseData["rjsTokenId"] = token.id;
+    const purchaseData = getPurchaseData(form);
+    purchaseData["planCode"] = planCode;
+    purchaseData["customAmount"] = customAmount.value;
+    purchaseData["rjsTokenId"] = token.id;
 
-      console.log("Sending to backend:", purchaseData);
-      await sendPurchaseData(purchaseData);
-    } catch (error) {
-      console.error("Something went wrong during form submission:", error);
-      if (Array.isArray(error) && error.length > 0) {
-        alert(error[0].message);
-      } else {
-        alert(error.message);
-      }
+    console.log("Sending to backend:", purchaseData);
+    await sendPurchaseData(purchaseData);
+  } catch (error) {
+    console.error("Something went wrong during form submission:", error);
+    if (Array.isArray(error) && error.length > 0) {
+      alert(error[0].message);
+    } else {
+      alert(error.message);
     }
-  });
+  }
+});
 
 async function sendPurchaseData(data) {
   // Get and attach reCHAPTCHA response to data
